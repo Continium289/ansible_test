@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+    stages {
+        stage('git cloning') {
+            steps {
+                git 'https://github.com/Continium289/ansible_test.git'
+            }
+        }
+        
+        stage('Execute ansible') {
+            steps {
+                ansiblePlaybook credentialsId: '222', disableHostKeyChecking: true, installation: 'ansible2', inventory: 'inventory.ini', playbook: 'playbook.yml'
+            }
+        }
+
+        stage('Db inserting') {
+            steps {
+                script {
+                    def cmd = "mysql -u user2 --password=PASSWORD -h 194.87.101.161 -e 'SHOW TABLES FROM mydatabase;' | grep 'Games'"
+                    def res = sh(returnStdout: true, script: cmd).trim()
+                    println(res)
+                    if(res != "Games") {
+                        println("INSERTING INTO TABLE;")
+                        sh '''mysql -u user2 --password=PASSWORD -h 194.87.101.161 < /tmp/db.sql'''
+                    }
+                }
+            }
+        }
+        
+    }
+}

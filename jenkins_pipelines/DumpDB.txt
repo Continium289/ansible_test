@@ -1,0 +1,13 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+                sh 'mysqldump -u user2 --password=PASSWORD --all-databases -h 194.87.101.161 > databases.sql'
+                archiveArtifacts artifacts: "databases.sql", followSymlinks: false
+            }
+        }
+    }
+}
