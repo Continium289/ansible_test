@@ -4,7 +4,7 @@ pipeline {
         string(name: "tableName", defaultValue: "players", trim: true, description: "Type table name")
     }
     stages {
-        stage('build') {
+        stage('select') {
             steps {
                 script {
                     def mysql = "mysql -u user2 --password=PASSWORD -h 194.87.101.161 -e 'SELECT * FROM mydatabase.${params.tableName};'"
