@@ -1,0 +1,105 @@
+- name: Install LAMP stack
+  hosts: webservers
+  become: true
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: Start Apache
+      service:
+        name: apache2
+        state: started
+
+    - name: Install MySQL client
+      apt:
+        name: mysql-client
+        state: present
+
+    - name: Install Python MySQL library
+      apt:
+        name: python3-mysqldb
+        state: present
+
+    - name: Copy Apache configuration file
+      template:
+        src: apache.conf.j2
+        dest: /etc/apache2/sites-available/000-default.conf
+        mode: 0644
+      notify: Restart Apache
+
+    - name: Enable Apache rewrite module
+      apache2_module:
+        state: present
+        name: rewrite
+      notify: Restart Apache
+
+    - name: Install SQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Create MySQL database
+      mysql_db:
+        name: mydatabase
+        state: present
+      become: true
+
+    - name: Create MySQL user
+      mysql_user:
+        name: myuser
+        password: mypassword
+        priv: '*.*:ALL'
+        state: present
+      become: true
+
+    - name: Install PHP and required modules
+      apt:
+        name:
+          - php
+          - libapache2-mod-php
+          - php-mysql
+          - php-cli
+          - php-gd
+          - php-curl
+          - php-json
+          - php-mbstring
+          - php-xml
+        state: present
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Copy PHP application files
+      copy:
+        src: app
+        dest: /var/www/html
+        mode: 0755
+
+    - name: Configure PHP application database connection
+      template:
+        src: config.php.j2
+        dest: /var/www/html/config.php
+        mode: 0644
+
+  handlers:
+    - name: Reload Apache
+      service:
+        name: apache2
+        state: reloaded
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted

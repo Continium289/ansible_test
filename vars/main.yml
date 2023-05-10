@@ -1,0 +1,10 @@
+mysql_host: "localhost"
+mysql_user: "myuser"
+mysql_password: "mypassword"
+mysql_database: "mydatabase"
+mysql_root_password: "mysql_root_password"
+app_user: "agil"
+http_host: "your_domain"
+http_conf: "your_domain.conf"
+http_port: "80"
+disable_default: true
